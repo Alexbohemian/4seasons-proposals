@@ -226,7 +226,17 @@ export async function sendProposalEmail(
   const apiKey = settings.sendgrid_api_key || process.env.SENDGRID_API_KEY;
   if (!apiKey) throw new Error("SendGrid API key not configured. Go to Settings > Integrations.");
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/proposal/view/${proposal.share_token}`;
+  // Build share URL dynamically — works on any deployment domain
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "https://4seasons-proposals.vercel.app";
+  const shareUrl = `${baseUrl}/proposal/view/${proposal.share_token}`;
+
+  const clientName = (proposal.clients as { name: string })?.name || "Valued Client";
 
   const emailBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -235,7 +245,7 @@ export async function sendProposalEmail(
         <p style="color: #81C784; margin: 4px 0 0;">${settings.license_number}</p>
       </div>
       <div style="padding: 32px; background: #f9f9f9;">
-        <p>Dear ${(proposal.clients as { name: string })?.name},</p>
+        <p>Dear ${clientName},</p>
         ${message ? `<p>${message}</p>` : `<p>Thank you for considering ${settings.company_name} for your project. Please find your proposal below.</p>`}
         <div style="text-align: center; margin: 32px 0;">
           <a href="${shareUrl}" style="background: #1B5E20; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
@@ -251,6 +261,9 @@ export async function sendProposalEmail(
     </div>
   `;
 
+  // Determine sender — SendGrid requires a verified sender identity
+  const fromEmail = settings.email || "noreply@4seasonsgreensinc.com";
+
   const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
     headers: {
@@ -259,7 +272,7 @@ export async function sendProposalEmail(
     },
     body: JSON.stringify({
       personalizations: [{ to: [{ email: recipientEmail }] }],
-      from: { email: settings.email, name: settings.company_name },
+      from: { email: fromEmail, name: settings.company_name },
       subject: `Proposal ${proposal.proposal_number} from ${settings.company_name}`,
       content: [{ type: "text/html", value: emailBody }],
     }),
@@ -267,7 +280,28 @@ export async function sendProposalEmail(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Email failed: ${errorText}`);
+    console.error("SendGrid error:", response.status, errorText);
+
+    // Parse SendGrid error for user-friendly message
+    try {
+      const errorJson = JSON.parse(errorText);
+      const errors = errorJson.errors || [];
+      const messages = errors.map((e: { message: string }) => e.message);
+
+      if (response.status === 403 || messages.some((m: string) => m.toLowerCase().includes("verified"))) {
+        throw new Error(
+          `SendGrid sender not verified. You need to verify "${fromEmail}" as a sender in your SendGrid dashboard (Settings > Sender Authentication).`
+        );
+      }
+      if (response.status === 401) {
+        throw new Error("SendGrid API key is invalid. Please check your key in Settings > Integrations.");
+      }
+      throw new Error(`Email failed: ${messages.join("; ") || errorText}`);
+    } catch (parseErr) {
+      if (parseErr instanceof Error && parseErr.message.startsWith("SendGrid")) throw parseErr;
+      if (parseErr instanceof Error && parseErr.message.startsWith("Email failed")) throw parseErr;
+      throw new Error(`Email failed (${response.status}): ${errorText.substring(0, 200)}`);
+    }
   }
 
   // Update status to sent

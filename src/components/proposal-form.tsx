@@ -18,10 +18,14 @@ import {
   MapPin,
   User,
   GripVertical,
+  Camera,
+  ImagePlus,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { createProposal } from "@/app/actions/proposals";
+import { createProposal, saveProposalImages } from "@/app/actions/proposals";
 import { generateWithAI, suggestLineItems } from "@/app/actions/ai";
+import { createClient } from "@/utils/supabase/client";
 import type { ServiceTemplate, CompanySettings } from "@/lib/types";
 
 interface ZoneData {
@@ -88,6 +92,11 @@ export function ProposalForm({
 
   // AI project description
   const [projectDesc, setProjectDesc] = useState("");
+
+  // Site images
+  const [siteImages, setSiteImages] = useState<
+    { file: File; preview: string; caption: string }[]
+  >([]);
 
   const totalAmount = zones.reduce(
     (sum, zone) => sum + zone.line_items.reduce((zSum, item) => zSum + (item.amount || 0), 0),
@@ -255,6 +264,31 @@ export function ProposalForm({
         status,
       });
 
+      // Upload site images if any
+      if (siteImages.length > 0) {
+        const supabase = createClient();
+        const uploaded: { storage_path: string; url: string; caption: string }[] = [];
+
+        for (const img of siteImages) {
+          const ext = img.file.name.split(".").pop() || "jpg";
+          const path = `${proposalId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from("proposal-images")
+            .upload(path, img.file, { contentType: img.file.type });
+
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage
+              .from("proposal-images")
+              .getPublicUrl(path);
+            uploaded.push({ storage_path: path, url: urlData.publicUrl, caption: img.caption });
+          }
+        }
+
+        if (uploaded.length > 0) {
+          await saveProposalImages(proposalId, uploaded);
+        }
+      }
+
       toast.success(status === "draft" ? "Proposal saved as draft" : "Proposal created");
       router.push(`/proposals/${proposalId}`);
     } catch (error) {
@@ -262,6 +296,38 @@ export function ProposalForm({
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleImageFiles = (files: FileList | null) => {
+    if (!files) return;
+    const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/heic", "image/heif"];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    Array.from(files).forEach((file) => {
+      if (!allowed.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp|heic|heif)$/i)) {
+        toast.error(`${file.name}: only JPG and PNG files are allowed`);
+        return;
+      }
+      if (file.size > maxSize) {
+        toast.error(`${file.name}: file is too large (max 10MB)`);
+        return;
+      }
+      const preview = URL.createObjectURL(file);
+      setSiteImages((prev) => [...prev, { file, preview, caption: "" }]);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setSiteImages((prev) => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const updateCaption = (index: number, caption: string) => {
+    setSiteImages((prev) =>
+      prev.map((img, i) => (i === index ? { ...img, caption } : img))
+    );
   };
 
   // Group templates by category
@@ -600,6 +666,74 @@ export function ProposalForm({
         <PlusCircle className="mr-2 h-4 w-4" />
         Add Another Zone / Area
       </Button>
+
+      {/* Site Photos */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Camera className="h-4 w-4 text-[#1B5E20]" />
+            Site Photos
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Upload photos of the job site to include in the proposal. Accepted formats: JPG, PNG.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Upload area */}
+          <label
+            htmlFor="site-image-upload"
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#4CAF50]/50 rounded-lg bg-[#E8F5E9]/20 hover:bg-[#E8F5E9]/50 cursor-pointer transition-colors"
+          >
+            <div className="flex flex-col items-center gap-2 text-[#1B5E20]">
+              <ImagePlus className="h-8 w-8 opacity-60" />
+              <div className="text-center">
+                <p className="text-sm font-medium">Click to upload or take a photo</p>
+                <p className="text-xs text-muted-foreground">JPG, PNG up to 10MB each</p>
+              </div>
+            </div>
+            <input
+              id="site-image-upload"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp,.heic,.heif"
+              multiple
+              capture="environment"
+              className="hidden"
+              onChange={(e) => handleImageFiles(e.target.files)}
+            />
+          </label>
+
+          {/* Image previews */}
+          {siteImages.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {siteImages.map((img, i) => (
+                <div key={i} className="relative group rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={img.preview}
+                    alt={`Site photo ${i + 1}`}
+                    className="w-full h-32 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                  <div className="p-1.5">
+                    <input
+                      type="text"
+                      value={img.caption}
+                      onChange={(e) => updateCaption(i, e.target.value)}
+                      placeholder="Add a caption..."
+                      className="w-full text-xs px-1.5 py-1 border border-gray-200 rounded bg-white focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Payment Milestones */}
       <Card>

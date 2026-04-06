@@ -166,6 +166,47 @@ export async function createProposal(formData: {
   return proposal.id;
 }
 
+export async function saveProposalImages(
+  proposalId: string,
+  images: { storage_path: string; url: string; caption: string }[]
+) {
+  if (images.length === 0) return;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase.from("proposal_images").insert(
+    images.map((img, i) => ({
+      proposal_id: proposalId,
+      storage_path: img.storage_path,
+      url: img.url,
+      caption: img.caption,
+      sort_order: i,
+    }))
+  );
+
+  if (error) throw error;
+  revalidatePath(`/proposals/${proposalId}`);
+}
+
+export async function deleteProposalImage(imageId: string, storagePath: string, proposalId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  await supabase.storage.from("proposal-images").remove([storagePath]);
+
+  const { error } = await supabase.from("proposal_images").delete().eq("id", imageId);
+  if (error) throw error;
+
+  revalidatePath(`/proposals/${proposalId}`);
+}
+
 export async function updateProposalStatus(proposalId: string, status: string) {
   const supabase = await createClient();
 

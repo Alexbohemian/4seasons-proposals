@@ -54,6 +54,12 @@ interface PublicProposalViewProps {
       percentage: number;
       amount: number;
     }[];
+    images?: {
+      id: string;
+      url: string;
+      caption: string;
+      sort_order: number;
+    }[];
   };
   settings: CompanySettings;
   token: string;
@@ -297,6 +303,31 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
             </Card>
           ))}
         </div>
+
+        {/* Site Photos */}
+        {proposal.images && proposal.images.length > 0 && (
+          <div>
+            <h2 className="text-lg font-bold mb-4 text-[#1B5E20]">Site Photos</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {proposal.images
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map((img) => (
+                  <div key={img.id} className="rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={img.url}
+                      alt={img.caption || "Site photo"}
+                      className="w-full h-40 object-cover"
+                    />
+                    {img.caption && (
+                      <p className="text-xs text-muted-foreground px-2 py-1.5 bg-white">
+                        {img.caption}
+                      </p>
+                    )}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
 
         {/* Total & Payment */}
         <Card className="border-2 border-[#1B5E20]/20">

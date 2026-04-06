@@ -43,9 +43,20 @@ export default async function PublicProposalPage({
     .select("*")
     .single();
 
+  const { data: images } = await supabase
+    .from("proposal_images")
+    .select("id, url, caption, sort_order")
+    .eq("proposal_id", proposal.id)
+    .order("sort_order", { ascending: true });
+
   return (
     <PublicProposalView
-      proposal={{ ...proposal, zones: zones || [], payment_milestones: milestones || [] }}
+      proposal={{
+        ...proposal,
+        zones: zones || [],
+        payment_milestones: milestones || [],
+        images: images || [],
+      }}
       settings={settings!}
       token={token}
     />

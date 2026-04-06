@@ -58,6 +58,7 @@ export interface Proposal {
   signer_name: string | null;
   signer_ip: string | null;
   share_token: string;
+  images?: ProposalImage[];
 }
 
 export interface ProposalZone {
@@ -87,6 +88,16 @@ export interface PaymentMilestone {
   percentage: number;
   amount: number;
   sort_order: number;
+}
+
+export interface ProposalImage {
+  id: string;
+  proposal_id: string;
+  storage_path: string;
+  url: string;
+  caption: string;
+  sort_order: number;
+  uploaded_at: string;
 }
 
 export interface ServiceTemplate {

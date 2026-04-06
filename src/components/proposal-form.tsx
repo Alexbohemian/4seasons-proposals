@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   PlusCircle,
   Trash2,
@@ -17,7 +16,6 @@ import {
   Send,
   MapPin,
   User,
-  GripVertical,
   Camera,
   ImagePlus,
   X,

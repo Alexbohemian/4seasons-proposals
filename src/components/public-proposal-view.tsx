@@ -209,9 +209,12 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="proposal-print-root min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="text-white py-8" style={{ backgroundColor: primaryColor }}>
+      <div
+        className="proposal-print-header text-white py-8"
+        style={{ backgroundColor: primaryColor }}
+      >
         <div className="max-w-3xl mx-auto px-6">
           <div className="flex items-center justify-between">
             <div>
@@ -250,7 +253,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
       </div>
 
       {/* Content */}
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+      <div className="proposal-print-content max-w-3xl mx-auto px-6 py-8 space-y-8">
         {/* Approved banner */}
         {isSigned && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
@@ -287,7 +290,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Introduction */}
         {proposal.introduction && (
-          <Card>
+          <Card className="proposal-card">
             <CardContent className="p-6">
               <p className="text-gray-700 leading-relaxed">{proposal.introduction}</p>
             </CardContent>
@@ -298,7 +301,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
         <div>
           <h2 className="text-lg font-bold mb-4" style={{ color: primaryColor }}>Scope of Work</h2>
           {proposal.zones?.map((zone) => (
-            <Card key={zone.id} className="mb-4">
+            <Card key={zone.id} className="proposal-card mb-4">
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-3">{zone.name}</h3>
                 <div className="space-y-2">
@@ -361,7 +364,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
         )}
 
         {/* Total & Payment */}
-        <Card className="border-2" style={{ borderColor: primaryColor + "33" }}>
+        <Card className="proposal-card border-2" style={{ borderColor: primaryColor + "33" }}>
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Total Investment</h2>
@@ -390,7 +393,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Warranty & Terms */}
         {(proposal.warranty_text || proposal.terms_text) && (
-          <Card>
+          <Card className="proposal-card">
             <CardContent className="p-6 space-y-4">
               {proposal.warranty_text && (
                 <div>
@@ -414,7 +417,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Signature Section */}
         {!isSigned && (
-          <Card className="border-2" style={{ borderColor: primaryColor }}>
+          <Card className="proposal-card no-print border-2" style={{ borderColor: primaryColor }}>
             <CardContent className="p-6">
               <h2 className="text-lg font-bold mb-2">Accept & Sign This Proposal</h2>
               <p className="text-sm text-muted-foreground mb-4">
@@ -480,7 +483,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Existing signature display */}
         {isSigned && proposal.signature_data && (
-          <Card>
+          <Card className="proposal-card">
             <CardContent className="p-6">
               <h3 className="font-semibold text-sm mb-3">Electronic Signature</h3>
               <div className="border rounded-lg p-4 bg-white">

@@ -196,9 +196,17 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <span className="font-bold text-sm">4S</span>
-                </div>
+                {settings.logo_url ? (
+                  <img
+                    src={settings.logo_url}
+                    alt={settings.company_name}
+                    className="h-10 w-10 rounded-xl object-contain bg-white p-1 flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <span className="font-bold text-sm">4S</span>
+                  </div>
+                )}
                 <div>
                   <h1 className="text-xl font-bold">{settings.company_name}</h1>
                   <p className="text-sm text-white/70">{settings.license_number}</p>

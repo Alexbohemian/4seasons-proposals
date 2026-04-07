@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, Building2, Key, FileText, Loader2, CheckCircle2 } from "lucide-react";
+import { Save, Building2, Key, FileText, Loader2, CheckCircle2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import type { CompanySettings } from "@/lib/types";
 
@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -68,6 +69,55 @@ export default function SettingsPage() {
     setSettings({ ...settings, [field]: value });
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !settings) return;
+
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `logo-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("company-logos")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("company-logos")
+        .getPublicUrl(path);
+
+      const { error: updateError } = await supabase
+        .from("company_settings")
+        .update({ logo_url: publicUrl })
+        .eq("id", settings.id);
+
+      if (updateError) throw updateError;
+
+      setSettings({ ...settings, logo_url: publicUrl });
+      toast.success("Logo uploaded successfully");
+    } catch (err) {
+      toast.error("Failed to upload logo");
+    } finally {
+      setUploadingLogo(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!settings) return;
+    const { error } = await supabase
+      .from("company_settings")
+      .update({ logo_url: null })
+      .eq("id", settings.id);
+    if (error) {
+      toast.error("Failed to remove logo");
+    } else {
+      setSettings({ ...settings, logo_url: null });
+      toast.success("Logo removed");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -113,6 +163,54 @@ export default function SettingsPage() {
               <CardTitle className="text-base">Company Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Logo Upload */}
+              <div className="space-y-2">
+                <Label>Company Logo</Label>
+                <div className="flex items-center gap-4">
+                  {settings.logo_url ? (
+                    <div className="relative">
+                      <img
+                        src={settings.logo_url}
+                        alt="Company logo"
+                        className="h-16 w-auto max-w-[160px] object-contain rounded-lg border bg-white p-1"
+                      />
+                      <button
+                        onClick={handleRemoveLogo}
+                        className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
+                      <span className="text-xs text-muted-foreground text-center px-1">No logo</span>
+                    </div>
+                  )}
+                  <div>
+                    <Label
+                      htmlFor="logo-upload"
+                      className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-md border text-sm font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      {uploadingLogo ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
+                      {uploadingLogo ? "Uploading..." : "Upload Logo"}
+                    </Label>
+                    <input
+                      id="logo-upload"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                      className="hidden"
+                      onChange={handleLogoUpload}
+                      disabled={uploadingLogo}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP or SVG. Max 5MB.</p>
+                  </div>
+                </div>
+              </div>
+              <Separator />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Company Name</Label>

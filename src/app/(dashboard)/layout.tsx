@@ -27,9 +27,14 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const { data: settings } = await supabase
+    .from("company_settings")
+    .select("logo_url, company_name")
+    .single();
+
   return (
     <div className="flex min-h-screen">
-      <AppSidebar profile={profile} />
+      <AppSidebar profile={profile} logoUrl={settings?.logo_url ?? null} companyName={settings?.company_name ?? "4 Seasons Greens"} />
       <main className="flex-1 ml-64">
         <div className="p-8">{children}</div>
       </main>

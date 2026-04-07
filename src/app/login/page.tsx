@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState("4 Seasons Greens");
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    supabase
+      .from("company_settings")
+      .select("logo_url, company_name")
+      .single()
+      .then(({ data }) => {
+        if (data?.logo_url) setLogoUrl(data.logo_url);
+        if (data?.company_name) setCompanyName(data.company_name);
+      });
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +54,19 @@ export default function LoginPage() {
       <Card className="w-full max-w-md mx-4 shadow-xl border-0">
         <CardHeader className="text-center pb-2">
           <div className="mx-auto mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#1B5E20] flex items-center justify-center mx-auto">
-              <span className="text-white font-bold text-xl">4S</span>
-            </div>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={companyName}
+                className="h-16 w-auto max-w-[160px] object-contain mx-auto"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-[#1B5E20] flex items-center justify-center mx-auto">
+                <span className="text-white font-bold text-xl">4S</span>
+              </div>
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-[#1B5E20]">4 Seasons Greens</h1>
+          <h1 className="text-2xl font-bold text-[#1B5E20]">{companyName}</h1>
           <p className="text-muted-foreground text-sm">Proposal Management System</p>
         </CardHeader>
         <CardContent>

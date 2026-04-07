@@ -29,7 +29,7 @@ const adminItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export function AppSidebar({ profile }: { profile: Profile }) {
+export function AppSidebar({ profile, logoUrl, companyName }: { profile: Profile; logoUrl: string | null; companyName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -45,11 +45,19 @@ export function AppSidebar({ profile }: { profile: Profile }) {
       {/* Brand */}
       <div className="p-6 border-b">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1B5E20] flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">4S</span>
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={companyName}
+              className="h-10 w-10 rounded-xl object-contain bg-white border flex-shrink-0"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-[#1B5E20] flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-sm">4S</span>
+            </div>
+          )}
           <div>
-            <h2 className="font-bold text-[#1B5E20] text-sm leading-tight">4 Seasons Greens</h2>
+            <h2 className="font-bold text-[#1B5E20] text-sm leading-tight">{companyName}</h2>
             <p className="text-xs text-muted-foreground">Proposal Manager</p>
           </div>
         </div>

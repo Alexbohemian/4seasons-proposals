@@ -308,7 +308,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
         {proposal.images && proposal.images.length > 0 && (
           <div>
             <h2 className="text-lg font-bold mb-4 text-[#1B5E20]">Site Photos</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {proposal.images
                 .sort((a, b) => a.sort_order - b.sort_order)
                 .map((img) => (
@@ -316,7 +316,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
                     <img
                       src={img.url}
                       alt={img.caption || "Site photo"}
-                      className="w-full h-40 object-cover"
+                      className="w-full h-80 object-cover"
                     />
                     {img.caption && (
                       <p className="text-xs text-muted-foreground px-2 py-1.5 bg-white">

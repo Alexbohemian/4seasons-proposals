@@ -499,22 +499,71 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
           </Card>
         )}
 
-        {/* Existing signature display */}
+        {/* Signature block — shown on screen and in PDF when signed */}
         {isSigned && proposal.signature_data && (
-          <Card className="proposal-card">
+          <Card className="proposal-card border-2" style={{ borderColor: primaryColor + "40" }}>
             <CardContent className="p-6">
-              <h3 className="font-semibold text-sm mb-3">Electronic Signature</h3>
-              <div className="border rounded-lg p-4 bg-white">
-                <img
-                  src={proposal.signature_data}
-                  alt="Signature"
-                  className="max-h-24 mx-auto"
-                />
+              {/* Header */}
+              <div
+                className="flex items-center gap-3 mb-5 pb-4 border-b"
+                style={{ borderColor: primaryColor + "30" }}
+              >
+                <CheckCircle2 className="h-6 w-6 flex-shrink-0" style={{ color: primaryColor }} />
+                <div>
+                  <h3 className="font-bold text-base" style={{ color: primaryColor }}>
+                    Proposal Approved &amp; Signed
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    This proposal was electronically accepted and signed
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                Signed by {proposal.signer_name} on{" "}
-                {format(new Date(proposal.signed_at!), "MMMM d, yyyy 'at' h:mm a")}
-              </p>
+
+              {/* Two-column: client info + signature image */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Signed by</p>
+                    <p className="font-semibold text-gray-900">{proposal.signer_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Date &amp; Time</p>
+                    <p className="text-sm text-gray-700">
+                      {format(new Date(proposal.signed_at!), "MMMM d, yyyy")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(proposal.signed_at!), "h:mm a")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Proposal</p>
+                    <p className="text-sm text-gray-700">{proposal.proposal_number}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Signature</p>
+                  <div
+                    className="rounded-lg border p-3 bg-white flex items-center justify-center"
+                    style={{ minHeight: "90px", borderColor: primaryColor + "30" }}
+                  >
+                    <img
+                      src={proposal.signature_data}
+                      alt="Electronic signature"
+                      className="max-h-20 max-w-full object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal footer */}
+              <div
+                className="mt-5 pt-4 border-t text-xs text-muted-foreground"
+                style={{ borderColor: primaryColor + "20" }}
+              >
+                By signing this proposal, the client agreed to the full scope of work, pricing, and
+                terms outlined above. This electronic signature is legally binding.
+              </div>
             </CardContent>
           </Card>
         )}

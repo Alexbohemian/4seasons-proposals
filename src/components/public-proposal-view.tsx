@@ -95,6 +95,23 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
   const primaryColor = settings.primary_color || "#1B5E20";
   const secondaryColor = settings.secondary_color || "#4CAF50";
 
+  const handlePrint = async () => {
+    // Preload all images before printing so they appear in the PDF
+    const imgs = Array.from(document.querySelectorAll("img"));
+    await Promise.all(
+      imgs.map(
+        (img) =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+                img.onerror = () => resolve();
+              })
+      )
+    );
+    window.print();
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -340,20 +357,21 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Site Photos */}
         {proposal.images && proposal.images.length > 0 && (
-          <div>
+          <div className="proposal-photos">
             <h2 className="text-lg font-bold mb-4" style={{ color: primaryColor }}>Site Photos</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="proposal-photos-grid grid grid-cols-2 gap-3">
               {proposal.images
                 .sort((a, b) => a.sort_order - b.sort_order)
                 .map((img) => (
-                  <div key={img.id} className="rounded-lg overflow-hidden border border-gray-200">
+                  <div key={img.id} className="proposal-photo-item rounded-lg border border-gray-200">
                     <img
                       src={img.url}
                       alt={img.caption || "Site photo"}
-                      className="w-full h-80 object-cover"
+                      className="proposal-photo-img w-full h-80 object-cover rounded-t-lg"
+                      crossOrigin="anonymous"
                     />
                     {img.caption && (
-                      <p className="text-xs text-muted-foreground px-2 py-1.5 bg-white">
+                      <p className="text-xs text-muted-foreground px-2 py-1.5 bg-white rounded-b-lg">
                         {img.caption}
                       </p>
                     )}
@@ -505,7 +523,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
         <div className="no-print flex justify-center py-2">
           <Button
             variant="outline"
-            onClick={() => window.print()}
+            onClick={handlePrint}
             className="gap-2 border-2 text-sm font-medium px-6 py-5"
             style={{ borderColor: primaryColor, color: primaryColor }}
           >

@@ -146,10 +146,32 @@
     padding-right: 0 !important;
   }
 
-  /* Avoid cards and images splitting across pages */
+  /* Avoid cards splitting across pages */
   .proposal-card {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /* Photos grid: 2 columns, fixed height images */
+  .proposal-photos-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .proposal-photo-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+  }
+
+  .proposal-photo-img {
+    display: block !important;
+    width: 100% !important;
+    height: 220px !important;
+    object-fit: cover !important;
+    border-radius: 0.5rem 0.5rem 0 0;
   }
 
   img {

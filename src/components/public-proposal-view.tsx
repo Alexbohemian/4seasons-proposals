@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Download, Loader2, Pen } from "lucide-react";
+import { CheckCircle2, Download, FileDown, Loader2, Pen } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { CompanySettings } from "@/lib/types";
@@ -63,6 +63,24 @@ interface PublicProposalViewProps {
   };
   settings: CompanySettings;
   token: string;
+}
+
+const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
+  draft:    { label: "Draft",    bg: "bg-gray-500/20",   text: "text-gray-100" },
+  sent:     { label: "Sent",     bg: "bg-blue-500/20",   text: "text-blue-100" },
+  viewed:   { label: "Viewed",   bg: "bg-yellow-500/20", text: "text-yellow-100" },
+  approved: { label: "Approved", bg: "bg-green-500/20",  text: "text-green-100" },
+  declined: { label: "Declined", bg: "bg-red-500/20",    text: "text-red-100" },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.sent;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${cfg.bg} ${cfg.text}`}>
+      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+      {cfg.label}
+    </span>
+  );
 }
 
 export function PublicProposalView({ proposal, settings, token }: PublicProposalViewProps) {
@@ -223,6 +241,9 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
               <p className="text-sm text-white/70">
                 {format(new Date(proposal.created_at), "MMMM d, yyyy")}
               </p>
+              <div className="mt-2">
+                <StatusBadge status={proposal.status} />
+              </div>
             </div>
           </div>
         </div>
@@ -476,6 +497,19 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
             </CardContent>
           </Card>
         )}
+
+        {/* Download PDF */}
+        <div className="no-print flex justify-center py-2">
+          <Button
+            variant="outline"
+            onClick={() => window.print()}
+            className="gap-2 border-2 text-sm font-medium px-6 py-5"
+            style={{ borderColor: primaryColor, color: primaryColor }}
+          >
+            <FileDown className="h-4 w-4" />
+            Download Proposal as PDF
+          </Button>
+        </div>
 
         {/* Footer */}
         <div className="text-center py-8 text-sm text-muted-foreground">

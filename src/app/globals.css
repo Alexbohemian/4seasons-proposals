@@ -116,4 +116,51 @@
 /* Print styles */
 @media print {
   .no-print { display: none !important; }
+
+  /* Reset page margins and background */
+  @page {
+    margin: 0.75in 0.6in;
+    size: letter;
+  }
+
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide everything except the proposal content */
+  body > *:not(#proposal-print-root) {
+    display: none !important;
+  }
+
+  /* Remove outer bg */
+  .proposal-bg {
+    background: white !important;
+    min-height: unset !important;
+  }
+
+  /* Make the header print with color */
+  .proposal-header {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Avoid page breaks inside cards */
+  .card, [class*="rounded"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Keep images from splitting */
+  img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Content width */
+  .proposal-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
 }

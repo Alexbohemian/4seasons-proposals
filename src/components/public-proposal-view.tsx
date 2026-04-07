@@ -220,7 +220,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
                   <img
                     src={settings.logo_url}
                     alt={settings.company_name}
-                    className="h-10 w-10 rounded-xl object-contain bg-white p-1 flex-shrink-0"
+                    className="h-[120px] w-auto max-w-[200px] rounded-xl object-contain bg-white p-2 flex-shrink-0"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">

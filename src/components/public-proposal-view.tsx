@@ -74,6 +74,8 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
   const isApproved = proposal.status === "approved";
   const isSigned = !!proposal.signed_at;
+  const primaryColor = settings.primary_color || "#1B5E20";
+  const secondaryColor = settings.secondary_color || "#4CAF50";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -86,7 +88,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
     canvas.width = canvas.offsetWidth * 2;
     canvas.height = canvas.offsetHeight * 2;
     ctx.scale(2, 2);
-    ctx.strokeStyle = "#1B5E20";
+    ctx.strokeStyle = primaryColor;
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -134,7 +136,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
       canvas.removeEventListener("touchmove", draw);
       canvas.removeEventListener("touchend", endDraw);
     };
-  }, [showSignature]);
+  }, [showSignature, primaryColor]);
 
   const clearSignature = () => {
     const canvas = canvasRef.current;
@@ -191,7 +193,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-[#1B5E20] text-white py-8">
+      <div className="text-white py-8" style={{ backgroundColor: primaryColor }}>
         <div className="max-w-3xl mx-auto px-6">
           <div className="flex items-center justify-between">
             <div>
@@ -209,7 +211,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
                 )}
                 <div>
                   <h1 className="text-xl font-bold">{settings.company_name}</h1>
-                  <p className="text-sm text-white/70">{settings.license_number}</p>
+                  <p className="text-sm" style={{ color: secondaryColor }}>{settings.license_number}</p>
                 </div>
               </div>
               <p className="text-sm text-white/70">{settings.address_line1}, {settings.address_line2}</p>
@@ -273,7 +275,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Scope of Work */}
         <div>
-          <h2 className="text-lg font-bold mb-4 text-[#1B5E20]">Scope of Work</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: primaryColor }}>Scope of Work</h2>
           {proposal.zones?.map((zone) => (
             <Card key={zone.id} className="mb-4">
               <CardContent className="p-6">
@@ -315,7 +317,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
         {/* Site Photos */}
         {proposal.images && proposal.images.length > 0 && (
           <div>
-            <h2 className="text-lg font-bold mb-4 text-[#1B5E20]">Site Photos</h2>
+            <h2 className="text-lg font-bold mb-4" style={{ color: primaryColor }}>Site Photos</h2>
             <div className="grid grid-cols-2 gap-3">
               {proposal.images
                 .sort((a, b) => a.sort_order - b.sort_order)
@@ -338,11 +340,11 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
         )}
 
         {/* Total & Payment */}
-        <Card className="border-2 border-[#1B5E20]/20">
+        <Card className="border-2" style={{ borderColor: primaryColor + "33" }}>
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Total Investment</h2>
-              <p className="text-3xl font-bold text-[#1B5E20]">
+              <p className="text-3xl font-bold" style={{ color: primaryColor }}>
                 ${Number(proposal.total_amount).toLocaleString()}
               </p>
             </div>
@@ -391,7 +393,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Signature Section */}
         {!isSigned && (
-          <Card className="border-2 border-[#1B5E20]">
+          <Card className="border-2" style={{ borderColor: primaryColor }}>
             <CardContent className="p-6">
               <h2 className="text-lg font-bold mb-2">Accept & Sign This Proposal</h2>
               <p className="text-sm text-muted-foreground mb-4">
@@ -401,7 +403,8 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
               {!showSignature ? (
                 <Button
                   onClick={() => setShowSignature(true)}
-                  className="w-full bg-[#1B5E20] hover:bg-[#0D3311] text-white py-6 text-lg"
+                  className="w-full text-white py-6 text-lg"
+                  style={{ backgroundColor: primaryColor }}
                 >
                   <Pen className="mr-2 h-5 w-5" />
                   Accept & Sign Proposal
@@ -438,7 +441,8 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
                   <Button
                     onClick={handleApprove}
                     disabled={signing}
-                    className="w-full bg-[#1B5E20] hover:bg-[#0D3311] text-white py-6 text-lg"
+                    className="w-full text-white py-6 text-lg"
+                  style={{ backgroundColor: primaryColor }}
                   >
                     {signing ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -475,7 +479,7 @@ export function PublicProposalView({ proposal, settings, token }: PublicProposal
 
         {/* Footer */}
         <div className="text-center py-8 text-sm text-muted-foreground">
-          <p className="font-medium text-[#1B5E20]">{settings.company_name}</p>
+          <p className="font-medium" style={{ color: primaryColor }}>{settings.company_name}</p>
           <p>{settings.phone} &middot; {settings.email}</p>
           <p>{settings.address_line1}, {settings.address_line2}</p>
         </div>

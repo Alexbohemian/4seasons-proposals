@@ -17,6 +17,8 @@ export interface CompanySettings {
   phone: string;
   email: string;
   logo_url: string | null;
+  primary_color: string;
+  secondary_color: string;
   gemini_api_key: string | null;
   sendgrid_api_key: string | null;
   default_warranty_text: string;

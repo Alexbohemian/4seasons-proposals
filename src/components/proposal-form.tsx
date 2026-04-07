@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { createProposal, saveProposalImages } from "@/app/actions/proposals";
+import { createProposal, updateProposal, saveProposalImages, deleteProposalImage } from "@/app/actions/proposals";
 import { generateWithAI, suggestLineItems } from "@/app/actions/ai";
 import { createClient } from "@/utils/supabase/client";
 import type { ServiceTemplate, CompanySettings } from "@/lib/types";
@@ -44,49 +44,85 @@ interface MilestoneData {
   amount: number;
 }
 
+interface ExistingImage {
+  id: string;
+  url: string;
+  caption: string;
+  storage_path: string;
+}
+
+interface InitialData {
+  proposalId: string;
+  clientId: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientAddress1: string;
+  clientAddress2: string;
+  title: string;
+  introduction: string;
+  notes: string;
+  validUntil: string;
+  warrantyText: string;
+  termsText: string;
+  zones: ZoneData[];
+  milestones: MilestoneData[];
+  images: ExistingImage[];
+}
+
 export function ProposalForm({
   templates,
   settings,
+  initialData,
 }: {
   templates: ServiceTemplate[];
   settings: CompanySettings;
+  initialData?: InitialData;
 }) {
+  const isEditMode = !!initialData;
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
 
   // Client
-  const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
-  const [clientPhone, setClientPhone] = useState("");
-  const [clientAddress1, setClientAddress1] = useState("");
-  const [clientAddress2, setClientAddress2] = useState("");
+  const [clientName, setClientName] = useState(initialData?.clientName ?? "");
+  const [clientEmail, setClientEmail] = useState(initialData?.clientEmail ?? "");
+  const [clientPhone, setClientPhone] = useState(initialData?.clientPhone ?? "");
+  const [clientAddress1, setClientAddress1] = useState(initialData?.clientAddress1 ?? "");
+  const [clientAddress2, setClientAddress2] = useState(initialData?.clientAddress2 ?? "");
 
   // Proposal
-  const [title, setTitle] = useState("Artificial Grass Installation");
+  const [title, setTitle] = useState(initialData?.title ?? "Artificial Grass Installation");
   const [introduction, setIntroduction] = useState(
-    "Thank you for the opportunity to provide you with this proposal. We look forward to transforming your outdoor space with premium artificial turf."
+    initialData?.introduction ?? "Thank you for the opportunity to provide you with this proposal. We look forward to transforming your outdoor space with premium artificial turf."
   );
-  const [notes, setNotes] = useState("");
-  const [validUntil, setValidUntil] = useState("");
-  const [warrantyText, setWarrantyText] = useState(settings.default_warranty_text || "");
-  const [termsText, setTermsText] = useState(settings.default_terms_text || "");
+  const [notes, setNotes] = useState(initialData?.notes ?? "");
+  const [validUntil, setValidUntil] = useState(initialData?.validUntil ?? "");
+  const [warrantyText, setWarrantyText] = useState(initialData?.warrantyText ?? settings.default_warranty_text ?? "");
+  const [termsText, setTermsText] = useState(initialData?.termsText ?? settings.default_terms_text ?? "");
 
   // Zones
-  const [zones, setZones] = useState<ZoneData[]>([
-    {
-      name: "Backyard",
-      line_items: [
-        { description: "", quantity: null, unit: "sqft", unit_price: null, amount: 0, is_addon: false },
-      ],
-    },
-  ]);
+  const [zones, setZones] = useState<ZoneData[]>(
+    initialData?.zones ?? [
+      {
+        name: "Backyard",
+        line_items: [
+          { description: "", quantity: null, unit: "sqft", unit_price: null, amount: 0, is_addon: false },
+        ],
+      },
+    ]
+  );
 
   // Payment Milestones
-  const [milestones, setMilestones] = useState<MilestoneData[]>([
-    { description: "Due upon base prep", percentage: 50, amount: 0 },
-    { description: "Due upon completion", percentage: 50, amount: 0 },
-  ]);
+  const [milestones, setMilestones] = useState<MilestoneData[]>(
+    initialData?.milestones ?? [
+      { description: "Due upon base prep", percentage: 50, amount: 0 },
+      { description: "Due upon completion", percentage: 50, amount: 0 },
+    ]
+  );
+
+  // Existing saved images (edit mode)
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialData?.images ?? []);
 
   // AI project description
   const [projectDesc, setProjectDesc] = useState("");
@@ -239,14 +275,7 @@ export function ProposalForm({
     try {
       const updatedMilestones = updateMilestoneAmounts(totalAmount, milestones);
 
-      const proposalId = await createProposal({
-        client: {
-          name: clientName,
-          email: clientEmail,
-          phone: clientPhone,
-          address_line1: clientAddress1,
-          address_line2: clientAddress2,
-        },
+      const formPayload = {
         title,
         introduction,
         zones: zones.map((z) => ({
@@ -259,8 +288,35 @@ export function ProposalForm({
         terms_text: termsText,
         notes,
         valid_until: validUntil,
-        status,
-      });
+      };
+
+      let proposalId: string;
+
+      if (isEditMode && initialData) {
+        proposalId = await updateProposal(initialData.proposalId, {
+          ...formPayload,
+          client: {
+            id: initialData.clientId,
+            name: clientName,
+            email: clientEmail,
+            phone: clientPhone,
+            address_line1: clientAddress1,
+            address_line2: clientAddress2,
+          },
+        });
+      } else {
+        proposalId = await createProposal({
+          ...formPayload,
+          client: {
+            name: clientName,
+            email: clientEmail,
+            phone: clientPhone,
+            address_line1: clientAddress1,
+            address_line2: clientAddress2,
+          },
+          status,
+        });
+      }
 
       // Upload site images if any
       if (siteImages.length > 0) {
@@ -293,6 +349,15 @@ export function ProposalForm({
       toast.error(error instanceof Error ? error.message : "Failed to save proposal");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const removeExistingImage = async (img: ExistingImage) => {
+    try {
+      await deleteProposalImage(img.id, img.storage_path, initialData!.proposalId);
+      setExistingImages((prev) => prev.filter((i) => i.id !== img.id));
+    } catch {
+      toast.error("Failed to remove image");
     }
   };
 
@@ -700,7 +765,34 @@ export function ProposalForm({
             />
           </label>
 
-          {/* Image previews */}
+          {/* Existing saved images (edit mode) */}
+          {existingImages.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {existingImages.map((img) => (
+                <div key={img.id} className="relative group rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={img.url}
+                    alt={img.caption || "Site photo"}
+                    className="w-full h-32 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(img)}
+                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                  {img.caption && (
+                    <div className="p-1.5">
+                      <p className="text-xs text-muted-foreground truncate">{img.caption}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* New image previews */}
           {siteImages.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {siteImages.map((img, i) => (
@@ -846,19 +938,21 @@ export function ProposalForm({
             </div>
           </div>
           <div className="flex gap-3">
-            <Button
-              onClick={() => handleSave("draft")}
-              disabled={saving}
-              variant="outline"
-              className="flex-1"
-            >
-              {saving ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
-              Save as Draft
-            </Button>
+            {!isEditMode && (
+              <Button
+                onClick={() => handleSave("draft")}
+                disabled={saving}
+                variant="outline"
+                className="flex-1"
+              >
+                {saving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save as Draft
+              </Button>
+            )}
             <Button
               onClick={() => handleSave("draft")}
               disabled={saving}
@@ -867,9 +961,9 @@ export function ProposalForm({
               {saving ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Send className="mr-2 h-4 w-4" />
+                <Save className="mr-2 h-4 w-4" />
               )}
-              Save & Continue
+              {isEditMode ? "Save Changes" : "Save & Continue"}
             </Button>
           </div>
         </CardContent>

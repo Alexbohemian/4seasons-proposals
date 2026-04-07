@@ -25,12 +25,12 @@ import {
   Copy,
   CheckCircle2,
   Clock,
-  FileText,
   ArrowLeft,
   ExternalLink,
   Loader2,
   Mail,
   XCircle,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -187,6 +187,14 @@ export function ProposalDetail({ proposal, settings }: ProposalDetailProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {proposal.status === "draft" && (
+            <Link href={`/proposals/${proposal.id}/edit`}>
+              <Button variant="outline" size="sm" className="border-[#4CAF50] text-[#1B5E20] hover:bg-[#E8F5E9]">
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                Edit
+              </Button>
+            </Link>
+          )}
           <Button variant="outline" size="sm" onClick={handleCopyLink}>
             <Copy className="mr-1.5 h-3.5 w-3.5" />
             Copy Link

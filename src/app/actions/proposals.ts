@@ -166,6 +166,133 @@ export async function createProposal(formData: {
   return proposal.id;
 }
 
+export async function updateProposal(
+  proposalId: string,
+  formData: {
+    client: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      address_line1: string;
+      address_line2: string;
+    };
+    title: string;
+    introduction: string;
+    zones: {
+      name: string;
+      line_items: {
+        description: string;
+        quantity: number | null;
+        unit: string;
+        unit_price: number | null;
+        amount: number;
+        is_addon: boolean;
+      }[];
+    }[];
+    payment_milestones: {
+      description: string;
+      percentage: number;
+      amount: number;
+    }[];
+    total_amount: number;
+    warranty_text: string;
+    terms_text: string;
+    notes: string;
+    valid_until: string;
+  }
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Update client
+  await supabase
+    .from("clients")
+    .update({
+      name: formData.client.name,
+      email: formData.client.email,
+      phone: formData.client.phone,
+      address_line1: formData.client.address_line1,
+      address_line2: formData.client.address_line2,
+    })
+    .eq("id", formData.client.id);
+
+  // Update proposal
+  const { error: proposalError } = await supabase
+    .from("proposals")
+    .update({
+      title: formData.title,
+      introduction: formData.introduction,
+      total_amount: formData.total_amount,
+      warranty_text: formData.warranty_text,
+      terms_text: formData.terms_text,
+      notes: formData.notes,
+      valid_until: formData.valid_until || null,
+    })
+    .eq("id", proposalId);
+
+  if (proposalError) throw proposalError;
+
+  // Delete and recreate zones + line items
+  await supabase.from("proposal_zones").delete().eq("proposal_id", proposalId);
+
+  for (let i = 0; i < formData.zones.length; i++) {
+    const zone = formData.zones[i];
+    const { data: newZone, error: zoneError } = await supabase
+      .from("proposal_zones")
+      .insert({ proposal_id: proposalId, name: zone.name, sort_order: i })
+      .select("id")
+      .single();
+
+    if (zoneError) throw zoneError;
+
+    if (zone.line_items.length > 0) {
+      const { error: itemsError } = await supabase.from("line_items").insert(
+        zone.line_items
+          .filter((i) => i.description.trim())
+          .map((item, j) => ({
+            zone_id: newZone.id,
+            description: item.description,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_price: item.unit_price,
+            amount: item.amount,
+            is_addon: item.is_addon,
+            sort_order: j,
+          }))
+      );
+      if (itemsError) throw itemsError;
+    }
+  }
+
+  // Delete and recreate milestones
+  await supabase.from("payment_milestones").delete().eq("proposal_id", proposalId);
+
+  if (formData.payment_milestones.length > 0) {
+    const { error: milestonesError } = await supabase
+      .from("payment_milestones")
+      .insert(
+        formData.payment_milestones.map((m, i) => ({
+          proposal_id: proposalId,
+          description: m.description,
+          percentage: m.percentage,
+          amount: m.amount,
+          sort_order: i,
+        }))
+      );
+    if (milestonesError) throw milestonesError;
+  }
+
+  revalidatePath("/proposals");
+  revalidatePath(`/proposals/${proposalId}`);
+  revalidatePath("/dashboard");
+
+  return proposalId;
+}
+
 export async function saveProposalImages(
   proposalId: string,
   images: { storage_path: string; url: string; caption: string }[]

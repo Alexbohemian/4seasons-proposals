@@ -20,16 +20,35 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // Supabase puts the token in the URL fragment (#access_token=...).
-  // We need to wait for the client to pick it up and establish a session.
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === "PASSWORD_RECOVERY") {
+    // PKCE flow: Supabase redirects here with ?code= in the URL.
+    // We must exchange the code for a session before we can update the password.
+    const code = new URLSearchParams(window.location.search).get("code");
+
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (error) {
+          setError(
+            "This reset link is invalid or has expired. Please request a new one."
+          );
+        } else {
           setSessionReady(true);
+          // Remove ?code= from the URL bar so it can't be replayed
+          window.history.replaceState({}, "", "/reset-password");
         }
+      });
+      return;
+    }
+
+    // Implicit flow fallback: Supabase puts the token in the URL fragment
+    // (#access_token=...) and the client fires PASSWORD_RECOVERY automatically.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setSessionReady(true);
       }
-    );
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -92,10 +111,10 @@ export default function ResetPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!sessionReady && (
+              {!sessionReady && !error && (
                 <div className="p-3 rounded-lg bg-yellow-50 text-yellow-700 text-sm">
-                  Verifying your reset link... If this persists, please request
-                  a new reset link.
+                  Verifying your reset link… If this persists, please request a
+                  new reset link.
                 </div>
               )}
               {error && (

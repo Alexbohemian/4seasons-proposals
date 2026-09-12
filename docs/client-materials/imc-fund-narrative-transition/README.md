@@ -26,7 +26,8 @@ A brand/narrative-system proposal that moves IMC Fund from a cautious, monochrom
 | [02-voices-and-common-thread.md](02-voices-and-common-thread.md) | The four voice tiers, the Common Thread concept, and the proposed logo evolution. |
 | [03-visual-system-patterns-and-color.md](03-visual-system-patterns-and-color.md) | How patterns and color systems were built, every hex value per Bioculture, and the blend rules. |
 | [04-implementation-examples.md](04-implementation-examples.md) | Anatomy of the five example layouts and reusable component patterns. |
-| [05-page-by-page.md](05-page-by-page.md) | Slide-by-slide transcription and description of all 22 pages. |
+| [05-page-by-page.md](05-page-by-page.md) | Slide-by-slide transcription and description of all 22 pages, with the rendered slide images embedded. |
+| `slides/` | All 22 slides rendered as 1280 px wide JPEGs (`slide-01.jpg` … `slide-22.jpg`). |
 
 ## Key takeaways for the redesign
 

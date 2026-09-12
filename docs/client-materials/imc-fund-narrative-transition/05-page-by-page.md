@@ -2,12 +2,16 @@
 
 All 22 slides in order. Text is transcribed verbatim (light typo fixes noted). Where a slide has no live text, its visual content is described. The PDF outline names the source Illustrator file for each slide; these names are included because they reveal the deck's intended sequence (files 03 and 04 in the numbering were dropped or merged).
 
-Slides 5 and 6 are lower resolution (720×405) than the rest (1920×1080), consistent with being imported from the Phase 1 Discovery deck.
+Slides 5 and 6 are lower resolution (720×405) than the rest (1920×1080), consistent with being imported from the Phase 1 Discovery deck. Their renders in `slides/` are upscaled and look soft.
+
+Rendered slides (1280 px wide JPEG) are in the `slides/` folder and embedded below.
 
 ---
 
 ### Slide 1 — Cover
 *Source: 00 IMC Fund Narrative Transition Cover*
+
+![Slide 1](slides/slide-01.jpg)
 
 Dark purple-black woven texture background. White mark and four-line wordmark at left.
 
@@ -22,6 +26,8 @@ Dark purple-black woven texture background. White mark and four-line wordmark at
 ### Slide 2 — Proposed logo evolution (mark)
 *Source: 01 IMC Fund Narrative Transition Logo*
 
+![Slide 2](slides/slide-02.jpg)
+
 White background. Title: **PROPOSED LOGO EVOLUTION**. The mark alone, large, dark green: spiral of leaf shapes, five central dots, four outlying leaves.
 
 Footer: *LIFT Economy | IMC Fund Storytelling Kit Project | Phase 2 | Possible evolutions of IMC Fund logo*
@@ -31,6 +37,8 @@ Footer: *LIFT Economy | IMC Fund Storytelling Kit Project | Phase 2 | Possible e
 ### Slide 3 — Proposed logo evolution (lockup)
 *Source: 02 IMCF logo process (process 00–04)*
 
+![Slide 3](slides/slide-03.jpg)
+
 White background. Horizontal lockup: mark at left, four-line wide-tracked wordmark INDIGENOUS / MEDICINE / CONSERVATION / FUND at right.
 
 Same footer as slide 2.
@@ -39,6 +47,8 @@ Same footer as slide 2.
 
 ### Slide 4 — Discovery: Voices | Audiences
 *Source: 05 IMC Fund Transition Discovery Recap*
+
+![Slide 4](slides/slide-04.jpg)
 
 Header: one-line wordmark, left; *Fundraising/Storytelling Toolkit Project | Discovery*, right.
 
@@ -66,6 +76,8 @@ Visual: two radial voice-map diagrams (current: mostly white/grey; desired: most
 ### Slide 5 — Discovery: Visual Components
 *Source: 06 IMC Fund Fundraising/Storytelling Toolkit, 1. Discovery final pages*
 
+![Slide 5](slides/slide-05.jpg)
+
 > **VISUAL COMPONENTS**
 > **UNVEILING REAL VIBRANCE**
 >
@@ -83,6 +95,8 @@ Visual: two split images (macaw in rainforest; young person with facial paint), 
 
 ### Slide 6 — Discovery: Narrative Evolution
 *Source: same as slide 5*
+
+![Slide 6](slides/slide-06.jpg)
 
 > **NARRATIVE EVOLUTION**
 > **MANAGING TRANSITION**
@@ -102,6 +116,8 @@ Visual: Impact Report 2023–2024 cover (beige, monochrome) beside Impact Report
 ### Slide 7 — Harmonizing four tiers of IMC Fund Voices (diagram)
 *Source: 07 IMC-Voices-diagram*
 
+![Slide 7](slides/slide-07.jpg)
+
 White background. Large radial diagram: IMC Fund mark in a white circle at centre-left; concentric arcs to the right in green (2 large segments), teal (ring of medium segments), blue (ring of small blocks), purple (ring of small blocks), then faint white arcs beyond. Grey connector lines join all blocks to the centre.
 
 > • Harmonizing four tiers of IMC Fund Voices
@@ -117,6 +133,8 @@ Legend bar across the bottom:
 ### Slide 8 — The Common Thread
 *Source: 08 IMCF ST Common Thread 1 (and 09 Common Thread 2)*
 
+![Slide 8](slides/slide-08.jpg)
+
 Dark woven texture. A white running-stitch line rises diagonally from lower-left to upper-right.
 
 > **The Common Thread**
@@ -129,6 +147,8 @@ Dark woven texture. A white running-stitch line rises diagonally from lower-left
 ### Slide 9 — Textile-inspired Patterns
 *Source: 10 IMCF ST Patterns System*
 
+![Slide 9](slides/slide-09.jpg)
+
 Dark texture. Title: **Textile-inspired Patterns**. Five horizontal strips, each labelled at left in a light serif: **Ayahuasca**, **Iboga**, **Mushrooms**, **Peyote**, **Toad**. Each strip blends from the plain common-thread texture (left) into the Bioculture pattern (right). See file 03 for pattern descriptions.
 
 ---
@@ -136,12 +156,16 @@ Dark texture. Title: **Textile-inspired Patterns**. Five horizontal strips, each
 ### Slide 10 — Patterns + color systems
 *Source: 11 IMCF ST Patterns System+color*
 
+![Slide 10](slides/slide-10.jpg)
+
 Same as slide 9 with a 5-column, 3-row hex-labelled palette added at the right of each strip (highlights / mid-tone / dark base). All values are tabulated in file 03. (The PDF's extractable text for the hex labels is garbled; values were read visually from an enlarged render.)
 
 ---
 
 ### Slide 11 — Harmonizing four tiers (system view)
 *Source: 12 IMCF ST Thread flow*
+
+![Slide 11](slides/slide-11.jpg)
 
 Dark texture. Title with double-headed arrow: **Harmonizing four tiers of IMC Fund Voices**. Large white mark at left. Five Bioculture rows, each showing: name + pattern strip | color palette | two photographs (medicine/territory, portrait). Dashed yellow-green vertical dividers. Legend bar across the bottom:
 
@@ -153,6 +177,8 @@ Dark texture. Title with double-headed arrow: **Harmonizing four tiers of IMC Fu
 
 ### Slide 12 — How were textile-inspired patterns and color systems developed?
 *Source: 13 Patterns-Color S Components*
+
+![Slide 12](slides/slide-12.jpg)
 
 > **How were textile-inspired patterns and color systems developed?**
 >
@@ -179,6 +205,12 @@ Visuals: (1) a six-image strip of one territory; (2) photo → blurred photo →
 ### Slides 13–17 — Thread + color-pattern blends
 *Sources: 14–18 IMCF ST Thread+Color-Pattern blends (Ayahuasca, Iboga, Mushrooms, Peyote, Toad)*
 
+![Slide 13](slides/slide-13.jpg)
+![Slide 14](slides/slide-14.jpg)
+![Slide 15](slides/slide-15.jpg)
+![Slide 16](slides/slide-16.jpg)
+![Slide 17](slides/slide-17.jpg)
+
 Identical layout per Bioculture: left half is a bottom-to-top blend from common thread into the Bioculture pattern; right half is a left-to-right blend; a five-segment vertical highlight bar at the centre seam; two 5-swatch strips (dark base, mid-tone) on the right.
 
 Slides 13–16 have no text beyond the header mark. Slide 17 (Toad) carries the labels for the series:
@@ -201,6 +233,12 @@ Slides 13–16 have no text beyond the header mark. Slide 17 (Toad) carries the 
 
 ### Slides 18–22 — Implementation examples
 *Sources: 19–23 IMCF Implementation examples (AYA, IBO, MUSH, PEY, TOAD)*
+
+![Slide 18](slides/slide-18.jpg)
+![Slide 19](slides/slide-19.jpg)
+![Slide 20](slides/slide-20.jpg)
+![Slide 21](slides/slide-21.jpg)
+![Slide 22](slides/slide-22.jpg)
 
 Each shows a mock 16:9 layout for one Bioculture with a small pattern + palette legend at bottom-left and thin annotation lines. Body text is Lorem ipsum. Slides 18–21 have no labels; slide 22 carries the labels for the series:
 
